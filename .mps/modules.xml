@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MPSProject">
+    <projectModules>
+      <modulePath path="$PROJECT_DIR$/languages/ExportToNeo4j/ExportToNeo4j.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/ExportToNeo4j/sandbox/ExportToNeo4j.sandbox.msd" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/NewLanguage/NewLanguage.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/NewLanguage/sandbox/NewLanguage.sandbox.msd" folder="" />
+      <modulePath path="$PROJECT_DIR$/solutions/Neo4j/Neo4j.msd" folder="" />
+    </projectModules>
+  </component>
+</project>
