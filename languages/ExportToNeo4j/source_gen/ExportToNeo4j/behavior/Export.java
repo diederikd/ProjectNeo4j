@@ -14,6 +14,7 @@ import org.neo4j.driver.v1.StatementResult;
 import jetbrains.mps.baseLanguage.logging.runtime.model.LoggingRuntime;
 import org.apache.log4j.Level;
 import org.jetbrains.mps.openapi.module.SModule;
+import org.neo4j.driver.v1.Statement;
 import org.neo4j.driver.v1.Values;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.jetbrains.mps.openapi.model.SModel;
@@ -56,12 +57,13 @@ public class Export implements AutoCloseable {
   }
 
   public void exportModule(final SModule sModule) {
+    final Statement statement = new Statement("MERGE (m:Module{moduleid:$moduleid}) SET m.name = $name RETURN ' module ' + id(m)", Values.parameters("name", sModule.getModuleName(), "moduleid", sModule.getModuleId().toString()));
     Session session = driver.session();
     String returnmessage = session.writeTransaction(new TransactionWork<String>() {
       @Override
       public String execute(Transaction tx) {
         try {
-          StatementResult result = tx.run("MERGE (m:Module{moduleid:$moduleid}) SET m.name = $name RETURN ' module ' + id(m)", Values.parameters("name", sModule.getModuleName(), "moduleid", sModule.getModuleId().toString()));
+          StatementResult result = tx.run(statement);
           return result.next().get(0).asString();
         } catch (ClientException clientException) {
           LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
@@ -88,6 +90,29 @@ public class Export implements AutoCloseable {
     });
     LoggingRuntime.logMsgView(Level.INFO, "Return model id " + returnmessage, Export.class, null, null);
   }
+  public void AddLabelNode(final SNode node, final String label) {
+    Session session = driver.session();
+    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
+      @Override
+      public String execute(Transaction tx) {
+        {
+          final SNode namedConcept = node;
+          if (SNodeOperations.isInstanceOf(namedConcept, CONCEPTS.INamedConcept$nV)) {
+            try {
+              StatementResult result = tx.run("MATCH (a:Node{nodeid:$nodeid}) SET a:" + label + " RETURN ' node ' + id(a)", Values.parameters("nodeid", namedConcept.getNodeId().toString()));
+              return result.next().get(0).asString();
+            } catch (ClientException clientException) {
+              LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
+              return null;
+            }
+          }
+        }
+        return null;
+      }
+    });
+    LoggingRuntime.logMsgView(Level.INFO, "Return node id with new label" + returnmessage, Export.class, null, null);
+  }
+
 
   public void exportNode(final SNode node) {
     Session session = driver.session();
@@ -98,17 +123,13 @@ public class Export implements AutoCloseable {
           final SNode namedConcept = node;
           if (SNodeOperations.isInstanceOf(namedConcept, CONCEPTS.INamedConcept$nV)) {
             try {
-              StatementResult result = tx.run("MERGE (a:Node{nodeid:$nodeid}) SET a.name = $name RETURN ' node ' + id(a)", Values.parameters("name", SPropertyOperations.getString(namedConcept, PROPS.name$tAp1), "nodeid", namedConcept.getNodeId().toString()));
+              StatementResult result = tx.run("MERGE (a:Node{nodeid:$nodeid}) SET a.name = $name RETURN ' node ' + id(a)", Values.parameters("name", SPropertyOperations.getString(namedConcept, PROPS.name$tAp1), "nodeid", namedConcept.getNodeId().toString(), "label", SNodeOperations.getConcept(namedConcept).getName()));
               return result.next().get(0).asString();
             } catch (ClientException clientException) {
               LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
               return null;
             }
           }
-        }
-        StatementResult result = tx.run("MATCH (node:Node) WHERE node.nodeid = $nodeid MERGE (a:Node) SET a.nodeid = $nodeid RETURN ' node ' + id(a)", Values.parameters("nodeid", node.getNodeId().toString()));
-        if (result.hasNext()) {
-          return result.next().get(0).asString();
         }
         return null;
       }
@@ -154,6 +175,7 @@ public class Export implements AutoCloseable {
     }
 
     exportRelation(node, SNodeOperations.getConcept(node).getDeclarationNode(), "basedOn");
+    AddLabelNode(node, SNodeOperations.getConcept(node).getName());
   }
 
   public void exportModuleContains(final SModule sModule, final SModel model, final String type) {
@@ -241,7 +263,9 @@ public class Export implements AutoCloseable {
             if (SNodeOperations.isInstanceOf(namedConcept, CONCEPTS.INamedConcept$nV)) {
               try {
                 StatementResult result = tx.run("MATCH (n:Node) WHERE n.nodeid = $nodeid SET n." + property.getName() + " = $value RETURN ' node ' + id(n )", Values.parameters("value", node.getProperty(property).toString(), "nodeid", namedConcept.getNodeId().toString()));
-                return result.next().get(0).asString();
+                if (result.hasNext()) {
+                  return result.next().get(0).asString();
+                }
               } catch (ClientException clientException) {
                 LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
                 return null;

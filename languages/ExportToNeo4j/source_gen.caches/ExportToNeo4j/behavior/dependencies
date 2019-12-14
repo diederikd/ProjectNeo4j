@@ -36,6 +36,7 @@
     <classNode dependClassName="org.neo4j.driver.v1.Driver" />
     <classNode dependClassName="org.neo4j.driver.v1.GraphDatabase" />
     <classNode dependClassName="org.neo4j.driver.v1.Session" />
+    <classNode dependClassName="org.neo4j.driver.v1.Statement" />
     <classNode dependClassName="org.neo4j.driver.v1.StatementResult" />
     <classNode dependClassName="org.neo4j.driver.v1.Transaction" />
     <classNode dependClassName="org.neo4j.driver.v1.TransactionWork" />
