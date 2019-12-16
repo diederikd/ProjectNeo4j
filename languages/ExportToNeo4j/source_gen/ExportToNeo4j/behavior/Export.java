@@ -7,16 +7,16 @@ import org.apache.log4j.LogManager;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.AuthTokens;
+import org.neo4j.driver.v1.Statement;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.TransactionWork;
 import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.exceptions.ClientException;
 import jetbrains.mps.baseLanguage.logging.runtime.model.LoggingRuntime;
 import org.apache.log4j.Level;
 import org.jetbrains.mps.openapi.module.SModule;
-import org.neo4j.driver.v1.Statement;
 import org.neo4j.driver.v1.Values;
-import org.neo4j.driver.v1.exceptions.ClientException;
 import org.jetbrains.mps.openapi.model.SModel;
 import jetbrains.mps.lang.smodel.generator.smodelAdapter.SModelOperations;
 import org.jetbrains.mps.openapi.model.SNode;
@@ -40,76 +40,46 @@ public class Export implements AutoCloseable {
   @Override
   public void close() throws Exception {
   }
-
-  public void setUniqueConstraintNodeId() {
+  private String executeStatement(final Statement statement) {
     Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
+    return session.writeTransaction(new TransactionWork<String>() {
       @Override
       public String execute(Transaction tx) {
-        StatementResult result = tx.run("CREATE CONSTRAINT ON (node:Node) ASSERT node.nodeid IS UNIQUE");
-        if (result.hasNext()) {
-          return result.next().get(0).asString();
+        try {
+          StatementResult result = tx.run(statement);
+          if (result.hasNext()) {
+            return result.next().get(0).asString();
+          }
+          return null;
+        } catch (ClientException clientException) {
+          LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
+          return null;
         }
-        return null;
       }
     });
+  }
+
+  public void setUniqueConstraintNodeId() {
+    Statement statement = new Statement("CREATE CONSTRAINT ON (node:Node) ASSERT node.nodeid IS UNIQUE");
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return unique constraint id " + returnmessage, Export.class, null, null);
   }
 
   public void exportModule(final SModule sModule) {
     final Statement statement = new Statement("MERGE (m:Module{moduleid:$moduleid}) SET m.name = $name RETURN ' module ' + id(m)", Values.parameters("name", sModule.getModuleName(), "moduleid", sModule.getModuleId().toString()));
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        try {
-          StatementResult result = tx.run(statement);
-          return result.next().get(0).asString();
-        } catch (ClientException clientException) {
-          LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-          return null;
-        }
-      }
-    });
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return module id " + returnmessage, Export.class, null, null);
   }
 
   public void exportModel(final SModel model) {
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        try {
-          StatementResult result = tx.run("MERGE (m:Model{modelid:$modelid}) SET m.name = $name RETURN ' model ' + id(m)", Values.parameters("name", SModelOperations.getModelName(model), "modelid", model.getModelId().toString()));
-          return result.next().get(0).asString();
-        } catch (ClientException clientException) {
-          LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-          return null;
-        }
-      }
-    });
+    Statement statement = new Statement("MERGE (m:Model{modelid:$modelid}) SET m.name = $name RETURN ' model ' + id(m)", Values.parameters("name", SModelOperations.getModelName(model), "modelid", model.getModelId().toString()));
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return model id " + returnmessage, Export.class, null, null);
   }
+
   public void AddLabelNode(final SNode node, final String label) {
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        {
-          final SNode namedConcept = node;
-          if (SNodeOperations.isInstanceOf(namedConcept, CONCEPTS.INamedConcept$nV)) {
-            try {
-              StatementResult result = tx.run("MATCH (a:Node{nodeid:$nodeid}) SET a:" + label + " RETURN ' node ' + id(a)", Values.parameters("nodeid", namedConcept.getNodeId().toString()));
-              return result.next().get(0).asString();
-            } catch (ClientException clientException) {
-              LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-              return null;
-            }
-          }
-        }
-        return null;
-      }
-    });
+    Statement statement = new Statement("MATCH (a:Node{nodeid:$nodeid}) SET a:" + label + " RETURN ' node ' + id(a)", Values.parameters("nodeid", node.getNodeId().toString()));
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return node id with new label" + returnmessage, Export.class, null, null);
   }
 
@@ -137,40 +107,14 @@ public class Export implements AutoCloseable {
     LoggingRuntime.logMsgView(Level.INFO, "Return node id " + returnmessage, Export.class, null, null);
 
     final Language l = SModelUtil.getDeclaringLanguage(SNodeOperations.getConceptDeclaration(node));
-    String returnmessage2 = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        try {
-          StatementResult result = tx.run("MATCH (n:Node) WHERE n.nodeid = $nodeid SET n.language = $language", Values.parameters("nodeid", node.getNodeId().toString(), "language", l.toString()));
-          if (result.hasNext()) {
-            return result.next().get(0).asString();
-          }
-          return null;
-        } catch (ClientException clientException) {
-          LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-          return null;
-        }
-      }
-    });
+    Statement statement = new Statement("MATCH (n:Node) WHERE n.nodeid = $nodeid SET n.language = $language", Values.parameters("nodeid", node.getNodeId().toString(), "language", l.toString()));
+    String returnmessage2 = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "language property added " + returnmessage2, Export.class, null, null);
 
     if (l.isReadOnly() == false) {
       // create declaration node too. 
-      String returnmessage3 = session.writeTransaction(new TransactionWork<String>() {
-        @Override
-        public String execute(Transaction tx) {
-          try {
-            StatementResult result = tx.run("MERGE (a:Node{nodeid:$nodeid}) SET a.name = $name RETURN ' node ' + id(a)", Values.parameters("nodeid", SNodeOperations.getConcept(node).getDeclarationNode().getNodeId().toString(), "name", SNodeOperations.getConcept(node).getName()));
-            if (result.hasNext()) {
-              return result.next().get(0).asString();
-            }
-            return null;
-          } catch (ClientException clientException) {
-            LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-            return null;
-          }
-        }
-      });
+      Statement statement3 = new Statement("MERGE (a:Node{nodeid:$nodeid}) SET a.name = $name RETURN ' node ' + id(a)", Values.parameters("nodeid", SNodeOperations.getConcept(node).getDeclarationNode().getNodeId().toString(), "name", SNodeOperations.getConcept(node).getName()));
+      String returnmessage3 = executeStatement(statement3);
       LoggingRuntime.logMsgView(Level.INFO, "concept declaration added " + returnmessage3, Export.class, null, null);
     }
 
@@ -179,46 +123,19 @@ public class Export implements AutoCloseable {
   }
 
   public void exportModuleContains(final SModule sModule, final SModel model, final String type) {
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        StatementResult result = tx.run("MATCH (m:Module), (n:Model) WHERE m.moduleid = $moduleid AND n.modelid = $modelid MERGE (m)-[r:" + type + "]->(n) RETURN 'relation id ' + id(r)", Values.parameters("moduleid", sModule.getModuleId().toString(), "modelid", model.getModelId().toString()));
-        if (result.hasNext()) {
-          return result.next().get(0).asString();
-        }
-        return null;
-      }
-    });
+    Statement statement = new Statement("MATCH (m:Module), (n:Model) WHERE m.moduleid = $moduleid AND n.modelid = $modelid MERGE (m)-[r:" + type + "]->(n) RETURN 'relation id ' + id(r)", Values.parameters("moduleid", sModule.getModuleId().toString(), "modelid", model.getModelId().toString()));
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return module contains " + returnmessage, Export.class, null, null);
   }
 
   public void exportModelContains(final SModel model, final SNode node, final String type) {
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        StatementResult result = tx.run("MATCH (m:Model), (n:Node) WHERE m.modelid = $modelid AND n.nodeid = $nodeid MERGE (m)-[r:" + type + "]->(n) RETURN 'relation id ' + id(r)", Values.parameters("modelid", model.getModelId().toString(), "nodeid", node.getNodeId().toString()));
-        if (result.hasNext()) {
-          return result.next().get(0).asString();
-        }
-        return null;
-      }
-    });
+    Statement statement = new Statement("MATCH (m:Model), (n:Node) WHERE m.modelid = $modelid AND n.nodeid = $nodeid MERGE (m)-[r:" + type + "]->(n) RETURN 'relation id ' + id(r)", Values.parameters("modelid", model.getModelId().toString(), "nodeid", node.getNodeId().toString()));
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return model contains " + returnmessage, Export.class, null, null);
   }
   public void exportRelation(final SNode fromNode, final SNode toNode, final String type) {
-    Session session = driver.session();
-    String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-      @Override
-      public String execute(Transaction tx) {
-        StatementResult result = tx.run("MATCH (n1:Node), (n2:Node) WHERE n1.nodeid = $nodeid1 AND n2.nodeid = $nodeid2 MERGE (n1)-[r:" + type + "]->(n2) RETURN 'relation id ' + id(r)", Values.parameters("nodeid1", fromNode.getNodeId().toString(), "nodeid2", toNode.getNodeId().toString()));
-        if (result.hasNext()) {
-          return result.next().get(0).asString();
-        }
-        return null;
-      }
-    });
+    Statement statement = new Statement("MATCH (n1:Node), (n2:Node) WHERE n1.nodeid = $nodeid1 AND n2.nodeid = $nodeid2 MERGE (n1)-[r:" + type + "]->(n2) RETURN 'relation id ' + id(r)", Values.parameters("nodeid1", fromNode.getNodeId().toString(), "nodeid2", toNode.getNodeId().toString()));
+    String returnmessage = executeStatement(statement);
     LoggingRuntime.logMsgView(Level.INFO, "Return relation " + returnmessage, Export.class, null, null);
   }
 
@@ -254,33 +171,14 @@ public class Export implements AutoCloseable {
   public void exportProperties(final SNode node) {
     for (SProperty property : Sequence.fromIterable(node.getProperties())) {
       LoggingRuntime.logMsgView(Level.INFO, "Property " + property.getName(), Export.class, null, null);
-      Session session = driver.session();
-      String returnmessage = session.writeTransaction(new TransactionWork<String>() {
-        @Override
-        public String execute(Transaction tx) {
-          {
-            final SNode namedConcept = node;
-            if (SNodeOperations.isInstanceOf(namedConcept, CONCEPTS.INamedConcept$nV)) {
-              try {
-                StatementResult result = tx.run("MATCH (n:Node) WHERE n.nodeid = $nodeid SET n." + property.getName() + " = $value RETURN ' node ' + id(n )", Values.parameters("value", node.getProperty(property).toString(), "nodeid", namedConcept.getNodeId().toString()));
-                if (result.hasNext()) {
-                  return result.next().get(0).asString();
-                }
-              } catch (ClientException clientException) {
-                LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
-                return null;
-              }
-            }
-          }
-          return null;
-        }
-      });
+      Statement statement = new Statement("MATCH (n:Node) WHERE n.nodeid = $nodeid SET n." + property.getName() + " = $value RETURN ' node ' + id(n )", Values.parameters("value", node.getProperty(property).toString(), "nodeid", node.getNodeId().toString()));
+      String returnmessage = executeStatement(statement);
       LoggingRuntime.logMsgView(Level.INFO, "Return property " + returnmessage, Export.class, null, null);
     }
   }
 
   public static void main(SModule sModule) {
-    Export example = new Export("bolt://localhost:7687", "neo4j", "5688389Dd!");
+    Export example = new Export("bolt://localhost:7687", "neo4j", "Password");
     example.setUniqueConstraintNodeId();
     example.exportModuleAndContents(sModule);
   }
