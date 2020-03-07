@@ -9,6 +9,8 @@
   <imports>
     <import index="f4ll" ref="r:5c967742-794e-4869-af14-932945b06c0b(NewLanguage.structure)" />
     <import index="i874" ref="r:d179d33c-b6e9-4025-b951-fed825ffa7c1(ExportToNeo4j.behavior)" />
+    <import index="al1t" ref="498d89d2-c2e9-11e2-ad49-6cf049e62fe5/java:com.intellij.diagnostic(MPS.IDEA/)" />
+    <import index="dxuu" ref="6354ebe7-c22a-4a0f-ac54-50b52ab9b065/java:javax.swing(JDK/)" />
     <import index="wge0" ref="r:4fadda69-ebe4-4bcc-9b24-af2773402c7a(ExportToNeo4j.structure)" implicit="true" />
     <import index="tpck" ref="r:00000000-0000-4000-0000-011c89590288(jetbrains.mps.lang.core.structure)" implicit="true" />
   </imports>
@@ -29,6 +31,13 @@
       </concept>
       <concept id="1081236700937" name="jetbrains.mps.baseLanguage.structure.StaticMethodCall" flags="nn" index="2YIFZM">
         <reference id="1144433194310" name="classConcept" index="1Pybhc" />
+      </concept>
+      <concept id="1070533707846" name="jetbrains.mps.baseLanguage.structure.StaticFieldReference" flags="nn" index="10M0yZ">
+        <reference id="1144433057691" name="classifier" index="1PxDUh" />
+      </concept>
+      <concept id="1070534058343" name="jetbrains.mps.baseLanguage.structure.NullLiteral" flags="nn" index="10Nm6u" />
+      <concept id="1068498886296" name="jetbrains.mps.baseLanguage.structure.VariableReference" flags="nn" index="37vLTw">
+        <reference id="1068581517664" name="variableDeclaration" index="3cqZAo" />
       </concept>
       <concept id="1068580123155" name="jetbrains.mps.baseLanguage.structure.ExpressionStatement" flags="nn" index="3clFbF">
         <child id="1068580123156" name="expression" index="3clFbG" />
@@ -80,7 +89,7 @@
     </language>
   </registry>
   <node concept="2S6QgY" id="6z3NP2OgdWn">
-    <property role="TrG5h" value="run" />
+    <property role="TrG5h" value="runExport" />
     <ref role="2ZfgGC" to="wge0:6z3NP2OglZf" resolve="ExportToNeo4j" />
     <node concept="2S6ZIM" id="6z3NP2OgdWo" role="2ZfVej">
       <node concept="3clFbS" id="6z3NP2OgdWp" role="2VODD2">
@@ -126,6 +135,23 @@
                   </node>
                 </node>
               </node>
+            </node>
+          </node>
+        </node>
+        <node concept="3clFbF" id="Abz4Iml1G9" role="3cqZAp">
+          <node concept="2YIFZM" id="Abz4Iml4x9" role="3clFbG">
+            <ref role="1Pybhc" to="dxuu:~JOptionPane" resolve="JOptionPane" />
+            <ref role="37wK5l" to="dxuu:~JOptionPane.showMessageDialog(java.awt.Component,java.lang.Object,java.lang.String,int)" resolve="showMessageDialog" />
+            <node concept="10Nm6u" id="Abz4Iml4_v" role="37wK5m" />
+            <node concept="Xl_RD" id="Abz4Iml4DY" role="37wK5m">
+              <property role="Xl_RC" value="Export done" />
+            </node>
+            <node concept="Xl_RD" id="Abz4Iml4GJ" role="37wK5m">
+              <property role="Xl_RC" value="Export to neo4j" />
+            </node>
+            <node concept="10M0yZ" id="Abz4Iml4RZ" role="37wK5m">
+              <ref role="3cqZAo" to="dxuu:~JOptionPane.INFORMATION_MESSAGE" resolve="INFORMATION_MESSAGE" />
+              <ref role="1PxDUh" to="dxuu:~JOptionPane" resolve="JOptionPane" />
             </node>
           </node>
         </node>

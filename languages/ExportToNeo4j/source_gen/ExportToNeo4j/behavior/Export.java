@@ -101,6 +101,12 @@ public class Export implements AutoCloseable {
             }
           }
         }
+        try {
+          StatementResult result = tx.run("MERGE (a:Node{nodeid:$nodeid}) RETURN ' node ' + id(a)", Values.parameters("nodeid", node.getNodeId().toString(), "label", SNodeOperations.getConcept(node).getName()));
+          return result.next().get(0).asString();
+        } catch (ClientException clientException) {
+          LoggingRuntime.logMsgView(Level.WARN, "Client Exception", Export.class, clientException, null);
+        }
         return null;
       }
     });

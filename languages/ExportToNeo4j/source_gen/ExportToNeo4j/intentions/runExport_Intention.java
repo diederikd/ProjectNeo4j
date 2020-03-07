@@ -17,20 +17,21 @@ import jetbrains.mps.lang.smodel.generator.smodelAdapter.SLinkOperations;
 import ExportToNeo4j.behavior.Export;
 import ExportToNeo4j.behavior.Helper;
 import jetbrains.mps.lang.smodel.generator.smodelAdapter.SPropertyOperations;
+import javax.swing.JOptionPane;
 import jetbrains.mps.openapi.intentions.IntentionDescriptor;
 import org.jetbrains.mps.openapi.language.SReferenceLink;
 import jetbrains.mps.smodel.adapter.structure.MetaAdapterFactory;
 import org.jetbrains.mps.openapi.language.SContainmentLink;
 import org.jetbrains.mps.openapi.language.SProperty;
 
-public final class run_Intention extends AbstractIntentionDescriptor implements IntentionFactory {
+public final class runExport_Intention extends AbstractIntentionDescriptor implements IntentionFactory {
   private Collection<IntentionExecutable> myCachedExecutable;
-  public run_Intention() {
+  public runExport_Intention() {
     super(Kind.NORMAL, false, new SNodePointer("r:705981c3-f23a-4a3b-8a9b-539e1fa4b904(ExportToNeo4j.intentions)", "7549105345931566871"));
   }
   @Override
   public String getPresentation() {
-    return "run";
+    return "runExport";
   }
   @Override
   public boolean isApplicable(final SNode node, final EditorContext editorContext) {
@@ -58,10 +59,11 @@ public final class run_Intention extends AbstractIntentionDescriptor implements 
       for (SNode module : ListSequence.fromList(SLinkOperations.getChildren(node, LINKS.modulesExported$tuA9))) {
         Export.main(Helper.Neo4j.getSModule(SPropertyOperations.getString(SLinkOperations.getTarget(module, LINKS.module$QARw), PROPS.name$tAp1)));
       }
+      JOptionPane.showMessageDialog(null, "Export done", "Export to neo4j", JOptionPane.INFORMATION_MESSAGE);
     }
     @Override
     public IntentionDescriptor getDescriptor() {
-      return run_Intention.this;
+      return runExport_Intention.this;
     }
   }
 

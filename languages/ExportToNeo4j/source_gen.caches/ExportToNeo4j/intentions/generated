@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<product version="3" modelHash="cdq7anw3w1tx7oabq58qb27p4go9qno">
-  <files names="IntentionsDescriptor.java:run_Intention.java" />
+<product version="3" modelHash="emwi3geb1mveh3yf7gzg6gp5gkuf2wo">
+  <files names="IntentionsDescriptor.java:runExport_Intention.java" />
 </product>
 

@@ -22,27 +22,42 @@
       </concept>
     </language>
   </registry>
-  <node concept="3swD2v" id="6z3NP2OhvfQ">
-    <node concept="3swcP0" id="6z3NP2OhvfR" role="3swcGp">
-      <property role="TrG5h" value="NewLanguage" />
-    </node>
-    <node concept="3swcP0" id="6z3NP2OhvfS" role="3swcGp">
-      <property role="TrG5h" value="NewLanguage.sandbox" />
-    </node>
-    <node concept="3swcP0" id="6z3NP2OhvfT" role="3swcGp">
-      <property role="TrG5h" value="Neo4j" />
-    </node>
-    <node concept="3swcP0" id="6z3NP2OhvfU" role="3swcGp">
+  <node concept="3swD2v" id="Abz4ImkK1w">
+    <node concept="3swcP0" id="Abz4ImkK1x" role="3swcGp">
       <property role="TrG5h" value="ExportToNeo4j" />
     </node>
-    <node concept="3swcP0" id="6z3NP2OhvfV" role="3swcGp">
+    <node concept="3swcP0" id="Abz4ImkK1y" role="3swcGp">
+      <property role="TrG5h" value="NewLanguage" />
+    </node>
+    <node concept="3swcP0" id="Abz4ImkK1z" role="3swcGp">
       <property role="TrG5h" value="ExportToNeo4j.sandbox" />
     </node>
-    <node concept="3swcOp" id="3kHme4rKclC" role="3swmU4">
-      <ref role="3swcOq" node="6z3NP2OhvfS" resolve="NewLanguage.sandbox" />
+    <node concept="3swcP0" id="Abz4ImkK1$" role="3swcGp">
+      <property role="TrG5h" value="NewLanguage.sandbox" />
     </node>
-    <node concept="3swcOp" id="3kHme4rKclz" role="3swmU4">
-      <ref role="3swcOq" node="6z3NP2OhvfR" resolve="NewLanguage" />
+    <node concept="3swcP0" id="Abz4ImkK1_" role="3swcGp">
+      <property role="TrG5h" value="Neo4j" />
+    </node>
+    <node concept="3swcP0" id="Abz4ImkK1A" role="3swcGp">
+      <property role="TrG5h" value="lang" />
+    </node>
+    <node concept="3swcP0" id="Abz4ImkK1B" role="3swcGp">
+      <property role="TrG5h" value="lang.sandbox2" />
+    </node>
+    <node concept="3swcP0" id="Abz4ImkK1C" role="3swcGp">
+      <property role="TrG5h" value="lang.sandbox1" />
+    </node>
+    <node concept="3swcOp" id="Abz4ImkK1D" role="3swmU4">
+      <ref role="3swcOq" node="Abz4ImkK1A" resolve="lang" />
+    </node>
+    <node concept="3swcOp" id="Abz4ImkK1I" role="3swmU4">
+      <ref role="3swcOq" node="Abz4ImkK1C" resolve="lang.sandbox1" />
+    </node>
+    <node concept="3swcOp" id="Abz4ImkK1Q" role="3swmU4">
+      <ref role="3swcOq" node="Abz4ImkK1B" resolve="lang.sandbox2" />
+    </node>
+    <node concept="3swcOp" id="2nPnxBgODy4" role="3swmU4">
+      <ref role="3swcOq" node="Abz4ImkK1$" resolve="NewLanguage.sandbox" />
     </node>
   </node>
 </model>

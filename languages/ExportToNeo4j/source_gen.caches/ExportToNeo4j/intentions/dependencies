@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dependenciesRoot>
   <dependency className="ExportToNeo4j.intentions.IntentionsDescriptor">
-    <classNode dependClassName="ExportToNeo4j.intentions.run_Intention" />
+    <classNode dependClassName="ExportToNeo4j.intentions.runExport_Intention" />
     <classNode dependClassName="java.lang.Override" />
     <classNode dependClassName="java.util.Arrays" />
     <classNode dependClassName="java.util.Collection" />
@@ -16,13 +16,14 @@
     <classNode dependClassName="org.jetbrains.mps.openapi.language.SAbstractConcept" />
     <classNode extendsClassName="jetbrains.mps.intentions.AbstractIntentionAspectDescriptor" />
   </dependency>
-  <dependency className="ExportToNeo4j.intentions.run_Intention">
+  <dependency className="ExportToNeo4j.intentions.runExport_Intention">
     <classNode dependClassName="ExportToNeo4j.behavior.Export" />
     <classNode dependClassName="ExportToNeo4j.behavior.Helper" />
     <classNode dependClassName="java.lang.Override" />
     <classNode dependClassName="java.lang.String" />
     <classNode dependClassName="java.util.Collection" />
     <classNode dependClassName="java.util.Collections" />
+    <classNode dependClassName="javax.swing.JOptionPane" />
     <classNode dependClassName="jetbrains.mps.intentions.AbstractIntentionExecutable" />
     <classNode dependClassName="jetbrains.mps.internal.collections.runtime.ListSequence" />
     <classNode dependClassName="jetbrains.mps.lang.smodel.generator.smodelAdapter.SLinkOperations" />

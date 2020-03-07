@@ -6,6 +6,9 @@
       <modulePath path="$PROJECT_DIR$/languages/ExportToNeo4j/sandbox/ExportToNeo4j.sandbox.msd" folder="" />
       <modulePath path="$PROJECT_DIR$/languages/NewLanguage/NewLanguage.mpl" folder="" />
       <modulePath path="$PROJECT_DIR$/languages/NewLanguage/sandbox/NewLanguage.sandbox.msd" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/lang/lang.mpl" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/lang/lang.sandbox2/lang.sandbox2.msd" folder="" />
+      <modulePath path="$PROJECT_DIR$/languages/lang/sandbox/lang.sandbox1.msd" folder="" />
       <modulePath path="$PROJECT_DIR$/solutions/Neo4j/Neo4j.msd" folder="" />
     </projectModules>
   </component>
